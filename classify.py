@@ -238,21 +238,20 @@ def store_results(out, results_path, rounding, paper_path, best_overall):
     :param best_overall: Best overall results
     :return: CSV file containing the results
     """
-    if out.shape[0] > 0:
-        final_best = pandas.read_csv(os.path.join(results_path, 'final_rounding' + str(rounding) + '_features' + str(
-            trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])) + '.csv'))
+    final_best = pandas.read_csv(os.path.join(results_path, 'final_rounding' + str(rounding) + '_features' + str(
+        trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])) + '.csv'))
 
-        out = out.round(4)
-        out = out.drop('rounding', axis=1)
-        final_best = final_best.round(4)
-        final_best.iloc[:, 0] = final_best.iloc[:, 0].replace('.csv', '', regex=True)
-        final_best.to_csv(os.path.join(paper_path, 'final_rounding' + str(rounding) + '_features' + str(
-            trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])) + '.csv'), index=False, sep=',')
+    out = out.round(4)
+    out = out.drop('rounding', axis=1)
+    final_best = final_best.round(4)
+    final_best.iloc[:, 0] = final_best.iloc[:, 0].replace('.csv', '', regex=True)
+    final_best.to_csv(os.path.join(paper_path, 'final_rounding' + str(rounding) + '_features' + str(
+        trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])) + '.csv'), index=False, sep=',')
 
-        print('Best number of features: ' + str(trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])))
-        print('Average improvement:' + str(
-            numpy.round(numpy.average(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4))
-              + '±' + str(numpy.round(numpy.std(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4)))
+    print('Best number of features: ' + str(trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])))
+    print('Average improvement:' + str(
+        numpy.round(numpy.average(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4))
+          + '±' + str(numpy.round(numpy.std(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4)))
 
 
 def main():
@@ -291,7 +290,8 @@ def main():
                                                                                             split, iterations, rounding)
         out, counter = generate_report(final, best_prediction, all_accuracies, classifiers, bucket, best_overall,
                                        counter, out, no_features, rounding, models_path, best_model, results_path)
-        store_results(out, results_path, rounding, paper_path, best_overall)
+        if out.shape[0] > 0:
+            store_results(out, results_path, rounding, paper_path, best_overall)
 
 
 if __name__ == "__main__":
