@@ -25,8 +25,15 @@ This code generates 41 structural features and forms a classifier dataset.
 ### Classify
 This code uses PCA to extract features from the classifier dataset and classify the reduced dataset using RF.
 
+## Requirements
+Install the requirements using: 
+
+```
+pip install -r requirements.txt
+```
+
 ## Run
-To run the code, install all the requirements from `requirements.txt` and run each step in order as mentioned in the **Code** section using the following commands:
+To run the code, run each step using the following commands:
 ```
 python edf2csv.py
 python generate.py
