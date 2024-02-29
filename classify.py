@@ -1,12 +1,4 @@
 """
-Programmed by Javad Rahimipour Anaraki on 2021.04.13
-Institute of Biomedical Engineering
-University of Toronto
-Rosebrugh Building, 164 College Street, Room 407
-Toronto, Ontario M5S 3G9 Canada
-Email: j [DOT] rahimipour [AT] utoronto [DOT] ca
-Website: https://jranaraki.github.io/
-
 This code uses PCA to extract features from the classifier dataset and classify the reduced dataset using RF
 """
 
