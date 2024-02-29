@@ -1,12 +1,4 @@
 """
-Programmed by Javad Rahimipour Anaraki on 2021.04.13
-Institute of Biomedical Engineering
-University of Toronto
-Rosebrugh Building, 164 College Street, Room 407
-Toronto, Ontario M5S 3G9 Canada
-Email: j [DOT] rahimipour [AT] utoronto [DOT] ca
-Website: https://jranaraki.github.io/
-
 This code reads BCI2000 EDF files, applies ICA and down-sampling (160Hz -> 10Hz), concatenates three sessions of
 performing Task 2 (i.e. 4, 8, and 12), and finally stores the results to a CSV file for each participant. The original
 data and the paper for the BCI2000 dataset can be downloaded from https://physionet.org/content/eegmmidb/1.0.0/ and
