@@ -7,7 +7,7 @@ Toronto, Ontario M5S 3G9 Canada
 Email: j [DOT] rahimipour [AT] utoronto [DOT] ca
 Website: https://jranaraki.github.io/
 
-This code use PCA to extract features from classifier dataset and classify the reduced dataset using RF
+This code uses PCA to extract features from the classifier dataset and classify the reduced dataset using RF
 """
 
 import os
