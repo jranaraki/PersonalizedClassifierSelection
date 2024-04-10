@@ -1,4 +1,4 @@
-name: eeg
+name: pcs
 channels:
   - conda-forge
 dependencies:
