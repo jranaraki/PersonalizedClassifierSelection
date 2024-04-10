@@ -25,6 +25,9 @@ This code generates 41 structural features and forms a classifier dataset.
 ### Classify
 This code uses PCA to extract features from the classifier dataset and classify the reduced dataset using RF.
 
+### Statistical results
+To generate statistical results, we used [KEEL](http://keel.es/) software to perform nonparametric statistical comparisons.
+
 ## Requirements
 Install the requirements using: 
 
