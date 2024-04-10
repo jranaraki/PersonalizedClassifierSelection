@@ -51,6 +51,9 @@ def main():
                 final_data = pd.concat([final_data, data], axis=1)
 
         # Storing data
+        if not os.path.exists('eeg'):
+            os.mkdir('eeg')
+
         final_data.to_csv(os.path.join('eeg', file[:4] + '.csv'), index=False, header=False)
 
 
