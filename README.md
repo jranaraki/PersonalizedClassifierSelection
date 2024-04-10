@@ -32,7 +32,7 @@ To generate statistical results, we used [KEEL](http://keel.es/) software to per
 Install the requirements using: 
 
 ```
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
 
 ## Run
