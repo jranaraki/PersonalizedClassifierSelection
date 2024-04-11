@@ -3,8 +3,8 @@ This code uses PCA to extract features from the classifier dataset and classify 
 """
 
 import os
-import pandas
-import numpy
+import pandas as pd
+import numpy as np
 import pickle
 import random
 
@@ -23,7 +23,7 @@ def normalize(x):
     """
     min_max_scaler = preprocessing.MinMaxScaler()
     x_scaled = min_max_scaler.fit_transform(x)
-    normalized = pandas.DataFrame(x_scaled)
+    normalized = pd.DataFrame(x_scaled)
     return normalized
 
 
@@ -40,11 +40,11 @@ def prepare(results_path, data_path, classifiers):
     for root, directories, file in os.walk(data_path, topdown=False):
         files.append(file)
 
-    accuracies = pandas.DataFrame(columns=classifiers, index=files[0])
+    accuracies = pd.DataFrame(columns=classifiers, index=files[0])
     for classifier in classifiers:
         data_path = os.path.join(results_path, classifier + '.csv')
-        data = pandas.read_csv(data_path)
-        data[data.columns[:-1]] = pandas.DataFrame(normalize(data.iloc[:, :-1]))
+        data = pd.read_csv(data_path)
+        data[data.columns[:-1]] = pd.DataFrame(normalize(data.iloc[:, :-1]))
 
         # Adding index
         try:
@@ -68,7 +68,7 @@ def generate_bucket(all_accuracies, classifiers, rounding, data):
     :param data: Data containing structural features
     :return: Bucket and the best accuracy for each input
     """
-    acc = pandas.DataFrame([all_accuracies.idxmax(axis=1)] * len(classifiers)).T
+    acc = pd.DataFrame([all_accuracies.idxmax(axis=1)] * len(classifiers)).T
     acc.columns = classifiers
     best_accuracy = all_accuracies.max(axis=1)
 
@@ -106,7 +106,7 @@ def calculate_accuracy(data, no_features, bucket, split, iterations, rounding):
     """
     best_accuracy = 0
     best_prediction = []
-    worst_accuracy = numpy.inf
+    worst_accuracy = np.inf
     accuracies = []
     predictions = []
     for iteration in range(iterations):
@@ -130,13 +130,13 @@ def calculate_accuracy(data, no_features, bucket, split, iterations, rounding):
             temp.append(any(elem == current_prediction[idx] for elem in bucket.loc[item]))
 
         # Store the best and the worst results
-        current_accuracy = numpy.sum(temp) / len(temp) * 100
+        current_accuracy = np.sum(temp) / len(temp) * 100
         if current_accuracy > best_accuracy:
             best_model = model
             best_accuracy = current_accuracy
             best_prediction = current_prediction
             in_bucket = temp
-            final = pandas.DataFrame(numpy.array(test_index).reshape(-1, 1))
+            final = pd.DataFrame(np.array(test_index).reshape(-1, 1))
 
         if current_accuracy < worst_accuracy:
             worst_accuracy = current_accuracy
@@ -145,10 +145,10 @@ def calculate_accuracy(data, no_features, bucket, split, iterations, rounding):
         accuracies.append(current_accuracy)
         predictions.append(current_prediction)
     print('no_features: ' + str(no_features) + ', Rounding: ' + str(rounding) + '%, Best accuracy: ' +
-          str(numpy.round(best_accuracy, 2)) + ', Average accuracy: ' + str(
-        numpy.round(numpy.average(accuracies), 2)) +
-          '±' + str(numpy.round(numpy.std(accuracies), 2)) + ', Worst accuracy: ' + str(
-        numpy.round(worst_accuracy, 2)))
+          str(np.round(best_accuracy, 2)) + ', Average accuracy: ' + str(
+        np.round(np.average(accuracies), 2)) +
+          '±' + str(np.round(np.std(accuracies), 2)) + ', Worst accuracy: ' + str(
+        np.round(worst_accuracy, 2)))
 
     return accuracies, best_prediction, worst_accuracy, best_model, final
 
@@ -173,11 +173,11 @@ def generate_report(final, best_prediction, all_accuracies, classifiers, bucket,
     :return: Updated output variable
     """
     random.seed(2)
-    numpy.random.seed(2)
-    final['P'] = pandas.DataFrame(best_prediction.reshape(-1, 1))
-    temp_classifiers = pandas.DataFrame(all_accuracies.idxmax(axis=1))
-    temp_accuracies = pandas.DataFrame(all_accuracies.max(axis=1))
-    random_classifiers = numpy.random.choice(classifiers, final.shape[0])
+    np.random.seed(2)
+    final['P'] = pd.DataFrame(best_prediction.reshape(-1, 1))
+    temp_classifiers = pd.DataFrame(all_accuracies.idxmax(axis=1))
+    temp_accuracies = pd.DataFrame(all_accuracies.max(axis=1))
+    random_classifiers = np.random.choice(classifiers, final.shape[0])
     for row in range(final.shape[0]):
         subject = final.loc[row, 0]
         final.loc[row, 'B'] = ', '.join(bucket.loc[subject])
@@ -231,7 +231,7 @@ def store_results(out, results_path, rounding, paper_path, best_overall):
     :return: CSV file containing the results
     """
     if out.shape[0] > 0:
-        final_best = pandas.read_csv(os.path.join(results_path, 'final_rounding' + str(rounding) + '_features' + str(
+        final_best = pd.read_csv(os.path.join(results_path, 'final_rounding' + str(rounding) + '_features' + str(
             trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])) + '.csv'))
 
         out = out.round(4)
@@ -243,8 +243,8 @@ def store_results(out, results_path, rounding, paper_path, best_overall):
 
         print('Best number of features: ' + str(trunc(out.loc[out.idxmax()['mean(AP)'], 'no_features'])))
         print('Average improvement:' + str(
-            numpy.round(numpy.average(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4))
-              + '±' + str(numpy.round(numpy.std(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4)))
+            np.round(np.average(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4))
+              + '±' + str(np.round(np.std(out.loc[:, 'mean(AP)'] - out.loc[:, best_overall]), 4)))
 
 
 def main():
@@ -255,6 +255,13 @@ def main():
 
     results_path = os.path.join(os.getcwd(), 'results')
     data_path = os.path.join(os.getcwd(), 'eeg')
+
+    if not os.path.exists('models'):
+        os.mkdir('models')
+
+    if not os.path.exists('paper'):
+            os.mkdir('paper')
+
     models_path = os.path.join(os.getcwd(), 'models')
     paper_path = os.path.join(os.getcwd(), 'paper')
 
@@ -270,7 +277,7 @@ def main():
     # Read in data and all accuracies
     data, all_accuracies, files = prepare(results_path, data_path, classifiers)
     rows, cols = data.shape
-    out = pandas.DataFrame()
+    out = pd.DataFrame()
 
     all_accuracies.columns = short_name
     classifiers = short_name
