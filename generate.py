@@ -3,8 +3,8 @@ This code generates 41 structural features and forms classifier dataset
 """
 
 import os
-import pandas
-import numpy
+import pandas as pd
+import numpy as np
 from joblib import Parallel, delayed
 from tqdm import tqdm
 from scipy.stats import chisquare, entropy
@@ -28,8 +28,8 @@ def kl_divergence(p, q):
     :param q: Second distribution
     :return: KL divergence value
     """
-    kl = numpy.sum(numpy.where(p != 0, p * numpy.log(p / q), 0))
-    if numpy.isnan(kl) | numpy.isinf(kl):
+    kl = np.sum(np.where(p != 0, p * np.log(p / q), 0))
+    if np.isnan(kl) | np.isinf(kl):
         kl = 0
     return kl
 
@@ -42,8 +42,8 @@ def rademacher(input_vector):
     """
     m = input_vector.shape[0]
     unq = input_vector.unique()
-    sigma = numpy.random.randint(low=unq.min(), high=unq.max() + 1, size=m)
-    rad = numpy.sum(numpy.multiply(numpy.equal(sigma, input_vector), 1) * (1 / len(unq))) / m
+    sigma = np.random.randint(low=unq.min(), high=unq.max() + 1, size=m)
+    rad = np.sum(np.multiply(np.equal(sigma, input_vector), 1) * (1 / len(unq))) / m
     return rad
 
 
@@ -55,7 +55,7 @@ def normalize(x):
     """
     min_max_scaler = preprocessing.MinMaxScaler()
     x_scaled = min_max_scaler.fit_transform(x)
-    normalized = pandas.DataFrame(x_scaled)
+    normalized = ps.DataFrame(x_scaled)
     return normalized
 
 
@@ -68,7 +68,7 @@ def calculate_features(data_path):
     out_row = []
 
     # Reading data file
-    df = pandas.read_csv(data_path, header=None)
+    df = ps.read_csv(data_path, header=None)
 
     # Normalizing dataset
     df.iloc[:, :-1] = normalize(df.iloc[:, :-1].values)
@@ -77,8 +77,8 @@ def calculate_features(data_path):
     df = df.loc[:, (df != 0).any(axis=0)]
 
     # Impute the dataset
-    imputer = SimpleImputer(missing_values=numpy.nan, strategy='mean').fit(df)
-    df = pandas.DataFrame(imputer.transform(df))
+    imputer = SimpleImputer(missing_values=np.nan, strategy='mean').fit(df)
+    df = ps.DataFrame(imputer.transform(df))
 
     # Add header to dataframe
     cols = []
@@ -109,14 +109,14 @@ def calculate_features(data_path):
     # Entropy of class
     ent = entropy(df.iloc[:, -1])
 
-    if numpy.isfinite(ent):
+    if np.isfinite(ent):
         out_row.append(entropy(df.iloc[:, -1]))
     else:
         out_row.append(0)
 
     # Quantile (25% and 75%), and range
-    seventy_five = numpy.percentile(df.iloc[:, -1], 75, interpolation='higher')
-    twenty_five = numpy.percentile(df.iloc[:, -1], 25, interpolation='higher')
+    seventy_five = np.percentile(df.iloc[:, -1], 75, interpolation='higher')
+    twenty_five = np.percentile(df.iloc[:, -1], 25, interpolation='higher')
     out_row.append(seventy_five)
     out_row.append(twenty_five)
     out_row.append(seventy_five - twenty_five)
@@ -125,15 +125,15 @@ def calculate_features(data_path):
     chi, p = chisquare(df)
     out_row.append(chi[-1])
     # Average of Chi-square of all
-    out_row.append(numpy.mean(chi[:-1]))
+    out_row.append(np.mean(chi[:-1]))
     # Median of Chi-square of all
-    out_row.append(numpy.median(chi[:-1]))
+    out_row.append(np.median(chi[:-1]))
     # Standard deviation of Chi-square of all
-    out_row.append(numpy.std(chi[:-1]))
+    out_row.append(np.std(chi[:-1]))
     # Min of Chi-square of all
-    out_row.append(numpy.min(chi[:-1]))
+    out_row.append(np.min(chi[:-1]))
     # Max of Chi-square of all
-    out_row.append(numpy.max(chi[:-1]))
+    out_row.append(np.max(chi[:-1]))
 
     # Pearson correlation
     corr = df.corr(method='pearson')
@@ -164,20 +164,20 @@ def calculate_features(data_path):
     out_row.append(((cov.iloc[:-1, :-1]).mean()).mean())
 
     # KL Divergence
-    nd = numpy.random.normal(loc=1, scale=2, size=m)
-    ud = numpy.random.uniform(size=m)
-    ld = numpy.random.logistic(loc=1, scale=2, size=m)
-    ed = numpy.random.exponential(scale=2, size=m)
-    cd = numpy.random.chisquare(df=2, size=m)
-    rd = numpy.random.rayleigh(scale=2, size=m)
-    pd = numpy.random.pareto(a=2, size=m)
-    zd = numpy.random.zipf(a=2, size=m)
+    nd = np.random.normal(loc=1, scale=2, size=m)
+    ud = np.random.uniform(size=m)
+    ld = np.random.logistic(loc=1, scale=2, size=m)
+    ed = np.random.exponential(scale=2, size=m)
+    cd = np.random.chisquare(df=2, size=m)
+    rd = np.random.rayleigh(scale=2, size=m)
+    pd = np.random.pareto(a=2, size=m)
+    zd = np.random.zipf(a=2, size=m)
     distros = ['nd', 'ud', 'ld', 'ed', 'cd', 'rd', 'pd', 'zd']
 
     for distro in distros:
         val = eval(distro)
         # KL 2 all
-        tmp = pandas.DataFrame(df.iloc[:, :-1])
+        tmp = ps.DataFrame(df.iloc[:, :-1])
         res = tmp.apply(lambda x: kl_divergence(x, val), axis=0)
         out_row.append(res.mean())
         # KL 2 class
@@ -188,8 +188,8 @@ def calculate_features(data_path):
     out_row.append(rademacher(df.iloc[:, -1]))
 
     # Convert to dataframe
-    out_row = numpy.array(out_row)
-    out_row = pandas.DataFrame(out_row.reshape(-1, len(out_row)))
+    out_row = np.array(out_row)
+    out_row = ps.DataFrame(out_row.reshape(-1, len(out_row)))
 
     return out_row, data
 
@@ -203,13 +203,16 @@ def calculate_accuracy(df, cls):
     """
     try:
         cv = cross_validate(cls, df.iloc[:, :-1], df.iloc[:, -1], cv=10)
-        accuracy = numpy.mean(cv['test_score'])
+        accuracy = np.mean(cv['test_score'])
         return cls, accuracy
     except:
-        return numpy.NAN
+        return np.NAN
 
 
 def main():
+    if not os.path.exists('results'):
+            os.mkdir('results')
+
     results_path = os.path.join(os.getcwd(), 'results')
     data_path = os.path.join(os.getcwd(), 'eeg')
 
@@ -234,8 +237,8 @@ def main():
                 'avgKLChiAll', 'avgKLRaylAll', 'avgKLParetAll', 'avgKLZipfAll', 'KLNormClass', 'KLUnifClass',
                 'KLLogiClass', 'KLExpoClass', 'KLChiClass', 'KLRaylClass', 'KLParetClass', 'KLZipfClass', 'radComClass']
 
-    out = pandas.DataFrame(columns=features)
-    acc = pandas.DataFrame()
+    out = ps.DataFrame(columns=features)
+    acc = ps.DataFrame()
 
     for root, directories, files in os.walk(data_path, topdown=False):
         for i, name in enumerate(tqdm(files)):
