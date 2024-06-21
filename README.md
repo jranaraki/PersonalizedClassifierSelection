@@ -1,11 +1,11 @@
 ---
 title: "PersonalizedClassifierSelection"
-author: "ABC"
+author: "Javad Rahimipour Anaraki, Antonina Kolokolova, and Tom Chau"
 date: '29/02/2024'
 ---
 
 ## Notice
-This code is related to the "Personalized Classifier Selection for EEG-based Brain-Computer Interfaces" paper [LINK](). If you need more details and explanations about the algorithm, please contact ABC.
+This code is related to the "Personalized Classifier Selection for EEG-based Brain-Computer Interfaces" paper [LINK](https://www.mdpi.com/journal/computers/special_issues/2Y2F08Y067#published). If you need more details and explanations about the algorithm, please contact Javad Rahimipour Anaraki.
 
 ## Use case
 A systematic methodology for individual classifier selection, wherein structural characteristics of an EEG dataset are used to predict a classifier that will perform with high accuracy.
